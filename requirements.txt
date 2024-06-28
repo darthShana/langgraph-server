@@ -1,0 +1,10 @@
+langgraph
+langchain_anthropic
+langchain_core
+tavily-python
+langchain_community
+langchain_openai
+tinydb
+pinecone-client
+langchain-pinecone
+langchain-voyageai

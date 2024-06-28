@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+langgraph-cli = "*"
+langchain-core = "*"
+langchain-anthropic = "*"
+langchain-openai = "*"
+langchain-community = "*"
+langgraph = "*"
+tinydb = "*"
+pinecone-client = "*"
+langchain-pinecone = "*"
+langchain-voyageai = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"
