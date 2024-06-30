@@ -11,6 +11,7 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.graph import StateGraph, END, add_messages
 import logging
 
+from model.user_profile import UserProfile
 from tools.fetch_user_information import fetch_user_information_tool
 from tools.turners_geography import turners_geography_tool
 from tools.vehicle_search import vehicle_search_tool
@@ -21,6 +22,7 @@ log = logging.getLogger(__name__)
 
 class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], add_messages]
+    user_info: UserProfile
 
 
 class VirtualTina:
@@ -107,12 +109,12 @@ workflow.add_node("fetch_user_info", user_info)
 workflow.add_node("assistant", VirtualTina(assistant_runnable))
 workflow.add_node("tools", create_tool_node_with_fallback(tools))
 workflow.add_node("display_results", display_results)
+
 workflow.add_edge("fetch_user_info", "assistant")
 workflow.add_conditional_edges(
     "assistant",
     tools_condition,
 )
-
 workflow.add_conditional_edges(
     "tools",
     route_tool_results,

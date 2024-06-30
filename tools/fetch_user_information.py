@@ -20,7 +20,7 @@ def fetch_user_information() -> UserProfile:
 
     query = Query()
     user = db.search(query.id == user_id)
-    if len(user)>0:
+    if len(user) > 0:
         return UserProfile(**user[0])
     else:
         profile = UserProfile(
