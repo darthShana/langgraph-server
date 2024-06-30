@@ -14,6 +14,7 @@ def fetch_user_information() -> UserProfile:
     config = ensure_config()
     configuration = config.get("configurable", {})
     user_id = configuration.get("user_id", None)
+    log.info(f"user_id:{user_id}")
     if not user_id:
         raise ValueError("No user ID configured")
 

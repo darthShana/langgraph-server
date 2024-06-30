@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 
 class QueryExtractor:
-    chat = ChatAnthropic(model="claude-3-sonnet-20240229")
+    chat = ChatAnthropic(model="claude-3-5-sonnet-20240620")
     metadata_field_info = {
         "content": "Vehicle Listings",
         "attributes": [

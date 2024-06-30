@@ -11,6 +11,7 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.graph import StateGraph, END, add_messages
 import logging
 
+from tools.fetch_user_information import fetch_user_information_tool
 from tools.turners_geography import turners_geography_tool
 from tools.vehicle_search import vehicle_search_tool
 from utils import create_tool_node_with_fallback, has_results_to_show
@@ -64,10 +65,11 @@ def route_tool_results(state: AgentState) -> Literal["assistant", "display_resul
 # Define the config
 class GraphConfig(TypedDict):
     model_name: str
+    user_id: str
 
 
 # Define the two nodes we will cycle between
-llm = ChatAnthropic(model="claude-3-5-sonnet-20240620", temperature=1)
+llm = ChatAnthropic(model="claude-3-5-sonnet-20240620", temperature=0)
 
 assistant_prompt = ChatPromptTemplate.from_messages(
     [
@@ -87,18 +89,25 @@ assistant_prompt = ChatPromptTemplate.from_messages(
 ).partial(time=datetime.now())
 
 tools = [
+    fetch_user_information_tool,
     turners_geography_tool,
     vehicle_search_tool,
     TavilySearchResults(max_results=1)
 ]
 
+
+def user_info(state: AgentState):
+    return {"user_info": fetch_user_information_tool.invoke({})}
+
 # Define a new graph
 workflow = StateGraph(AgentState, config_schema=GraphConfig)
 assistant_runnable = assistant_prompt | llm.bind_tools(tools)
-workflow.set_entry_point("assistant")
+workflow.set_entry_point("fetch_user_info")
+workflow.add_node("fetch_user_info", user_info)
 workflow.add_node("assistant", VirtualTina(assistant_runnable))
 workflow.add_node("tools", create_tool_node_with_fallback(tools))
 workflow.add_node("display_results", display_results)
+workflow.add_edge("fetch_user_info", "assistant")
 workflow.add_conditional_edges(
     "assistant",
     tools_condition,

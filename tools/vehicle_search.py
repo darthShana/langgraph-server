@@ -26,7 +26,7 @@ index = pc.Index("turners-sample-stock")
 
 
 query_extractor = QueryExtractor()
-chat = ChatAnthropic(model="claude-3-sonnet-20240229")
+chat = ChatAnthropic(model="claude-3-5-sonnet-20240620")
 
 
 class VehicleSearchInput(BaseModel):
