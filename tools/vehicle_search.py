@@ -4,6 +4,7 @@ from typing import List, Optional
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.tools import StructuredTool
+from langchain_core.utils.json import parse_json_markdown
 from tinydb import TinyDB, Query
 from pydantic.v1 import BaseModel, Field
 from retrievers.query_extractor import QueryExtractor
@@ -33,7 +34,7 @@ class VehicleSearchInput(BaseModel):
     branches: Optional[List[str]] = Field(description="an optional list of turners branches where the results can be filtered.")
 
 
-def vehicle_search(chat_history: List[str], branches: List[str] = None) -> str:
+def vehicle_search(chat_history: List[str], branches: List[str] = None) -> dict:
     if branches is None:
         branches = []
     if len(branches) > 0:
@@ -66,7 +67,7 @@ def vehicle_search(chat_history: List[str], branches: List[str] = None) -> str:
         "vehicle_descriptions": load_candidates
     })
     log.info(res.content)
-    return res.content
+    return parse_json_markdown(res.content)
 
 
 vehicle_search_tool = StructuredTool.from_function(
