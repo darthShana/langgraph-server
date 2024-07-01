@@ -24,7 +24,7 @@ def fetch_user_information() -> UserProfile:
         return UserProfile(**user[0])
     else:
         profile = UserProfile(
-            id=user_id,
+            user_id=user_id,
             name="",
             preferred_branches=[]
         )
