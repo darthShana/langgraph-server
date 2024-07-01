@@ -1,3 +1,4 @@
+import uuid
 from typing import Optional
 from langchain_core.tools import StructuredTool
 from pydantic.v1 import BaseModel, Field
@@ -19,7 +20,7 @@ def add_to_watch_list(user_id: str, source: str) -> None:
     if len(result) > 0:
         w = WatchList(**result[0])
     else:
-        w = WatchList(user_id=user_id, source=[], comments={})
+        w = WatchList(user_id=user_id, vehicles=[], comments=[])
         db.insert(w.dict())
 
     w.vehicles.append(source)
@@ -54,3 +55,8 @@ get_watch_list_tool = StructuredTool.from_function(
             """,
     args_schema=GetWatchListInput
 )
+
+if __name__ == "__main__":
+    user_id = str(uuid.uuid4())
+    add_to_watch_list(user_id, "https://www.turners.co.nz//Cars/Used-Cars-for-Sale/skoda/scala/25666306")
+    print(get_watch_list(user_id))
