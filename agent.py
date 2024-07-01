@@ -104,6 +104,7 @@ tools = [
 def user_info(state: AgentState):
     return {"user_info": fetch_user_information_tool.invoke({})}
 
+
 # Define a new graph
 workflow = StateGraph(AgentState, config_schema=GraphConfig)
 assistant_runnable = assistant_prompt | llm.bind_tools(tools)
