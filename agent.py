@@ -32,8 +32,8 @@ class VirtualTina:
 
     def __call__(self, state: AgentState, config: RunnableConfig):
         while True:
-            user_id = config.get("user_id", None)
-            state = {**state, "user_info": user_id}
+            user = state.get("user_info", None)
+            state = {**state, "user_info": user}
             result = self.runnable.invoke(state)
 
             if not result.tool_calls and (
