@@ -5,15 +5,15 @@ from tinydb import TinyDB, Query
 
 from model.watch_list import WatchList
 
-db = TinyDB('watch_list.json')
+db = TinyDB('db/watch_list.json')
 
 
 class AddToWatchListInput(BaseModel):
-    user_id: str = Field("user id of the the user this watch list belongs to"),
+    user_id: str = Field("user id of the the user this watch list belongs to")
     source: str = Field("the source url of the vehicle to be added to this watch list")
 
 
-def add_to_watch_list(user_id: str, source: str):
+def add_to_watch_list(user_id: str, source: str) -> None:
     Q = Query()
     result = db.search(Q.user_id == user_id)
     if len(result) > 0:
