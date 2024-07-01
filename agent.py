@@ -96,7 +96,7 @@ tools = [
     turners_geography_tool,
     vehicle_search_tool,
     add_to_watch_list_tool,
-    get_watch_list_tool,
+    # get_watch_list_tool,
     TavilySearchResults(max_results=1)
 ]
 
