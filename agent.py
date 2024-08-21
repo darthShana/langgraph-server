@@ -10,6 +10,7 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.graph import StateGraph, END, add_messages
 import logging
+import sqlite3
 
 from model.user_profile import UserProfile
 from tools.fetch_user_information import fetch_user_information_tool
@@ -132,5 +133,6 @@ workflow.add_edge("display_results", "__end__")
 # Finally, we compile it!
 # This compiles it into a LangChain Runnable,
 # meaning you can use it as you would any other runnable
-memory = SqliteSaver.from_conn_string(":memory:")
-graph = workflow.compile(checkpointer=memory)
+conn = sqlite3.connect(":memory:")
+checkpointer = SqliteSaver(conn)
+graph = workflow.compile(checkpointer=checkpointer)
