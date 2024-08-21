@@ -6,7 +6,7 @@ from langchain_anthropic import ChatAnthropic
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable, RunnableConfig
 from langchain_community.tools.tavily_search import TavilySearchResults
-from langgraph.checkpoint import MemorySaver
+from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.graph import StateGraph, END, add_messages
 import logging
@@ -132,5 +132,5 @@ workflow.add_edge("display_results", "__end__")
 # Finally, we compile it!
 # This compiles it into a LangChain Runnable,
 # meaning you can use it as you would any other runnable
-memory = MemorySaver()
+memory = SqliteSaver.from_conn_string(":memory:")
 graph = workflow.compile(checkpointer=memory)
