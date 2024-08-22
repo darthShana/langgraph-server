@@ -79,7 +79,7 @@ assistant_prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            "You are a helpful but sassy assistant working for Car Place, a used vehicle marketplace for cars, trucks and machinery in New Zealand."
+            "You are a helpful but sassy assistant working for Turners Automotive, a used vehicle marketplace for cars, trucks and machinery in New Zealand."
             "Respond to user queries in a concise manner to reduce the amount they have to read"
             "Use the provided tools to search for vehicles and other information to assist the user's queries, only if necessary."
             "Only use the `turners_geography_tool` if a specific location is mentioned in the conversation."
@@ -98,7 +98,6 @@ tools = [
     vehicle_search_tool,
     add_to_watch_list_tool,
     get_watch_list_tool,
-    TavilySearchResults(max_results=1)
 ]
 
 

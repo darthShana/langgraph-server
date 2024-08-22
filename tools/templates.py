@@ -3,7 +3,7 @@ Please provide a JSON response in the following format to the question provided,
 {format_instructions}
 
 Given the provided conversation between an AI and a human looking for a suitable vehicle, 
-as well as a list vehicle descriptions. Filter the list and return up to 3 matching vehicle descriptions
+as well as a list vehicle descriptions. Filter the list and return up to 10 matching vehicle descriptions
 return a summary of each listing, always include the source of each listing
 Conversation:
 {conversation}

@@ -1,5 +1,5 @@
 import os
-from typing import List, Optional
+from typing import List, Optional, Annotated
 
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
@@ -29,12 +29,17 @@ query_extractor = QueryExtractor()
 chat = ChatAnthropic(model="claude-3-5-sonnet-20240620")
 
 
+class InjectedState:
+    pass
+
+
 class VehicleSearchInput(BaseModel):
-    chat_history: List[str] = Field(description="the chat history between an ai and human looking for a suitable vehicle")
+    state: Annotated[dict, InjectedState] = Field(description="current state")
     branches: Optional[List[str]] = Field(description="an optional list of turners branches where the results can be filtered.")
 
 
-def vehicle_search(chat_history: List[str], branches: List[str] = None) -> dict:
+def vehicle_search(state: Annotated[dict, InjectedState], branches: List[str] = None) -> dict:
+    chat_history = state['messages']
     if branches is None:
         branches = []
     if len(branches) > 0:
@@ -46,7 +51,7 @@ def vehicle_search(chat_history: List[str], branches: List[str] = None) -> dict:
     res = index.query(
         vector=vector,
         filter=query['filter'],
-        top_k=10,
+        top_k=20,
         include_metadata=True
     )
     sources = set(map(lambda x: x['metadata']['source'], res['matches']))
