@@ -6,12 +6,12 @@ The query string should contain only text that is expected to match the contents
 A logical condition statement is composed of one or more comparison and logical operation statements.
 
 A comparison statement takes the form: `comp(attr, val)`:
-- `comp` (eq | ne | gt | gte | lt | lte | contain | like | in | nin): comparator
+- `comp` ($eq | $ne | $gt | $gte | $lt | $lte | $contain | $like | $in | $nin): comparator
 - `attr` (string):  name of attribute to apply the comparison to
 - `val` (string): is the comparison value
 
 A logical operation statement takes the form `op(statement1, statement2, ...)`:
-- `op` (and | or | not): logical operator
+- `op` ($and | $or | $not): logical operator
 - `statement1`, `statement2`, ... (comparison statements or logical operation statements): one or more statements to apply the operation to
 
 Make sure that you only use the comparators and logical operators listed above and no others.
