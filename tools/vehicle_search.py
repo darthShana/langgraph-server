@@ -1,11 +1,10 @@
 import os
-from typing import List, Optional, Annotated
+from typing import List, Optional
 
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.tools import StructuredTool
 from langchain_core.utils.json import parse_json_markdown
-from langgraph.prebuilt import InjectedState
 from tinydb import TinyDB, Query
 from pydantic.v1 import BaseModel, Field
 from retrievers.query_extractor import QueryExtractor
@@ -31,12 +30,11 @@ chat = ChatAnthropic(model="claude-3-5-sonnet-20240620")
 
 
 class VehicleSearchInput(BaseModel):
-    state: Annotated[dict, InjectedState] = Field(description="current state")
+    chat_history: List[str] = Field(description="the chat history between an ai and human looking for a suitable vehicle")
     branches: Optional[List[str]] = Field(description="an optional list of turners branches where the results can be filtered.")
 
 
-def vehicle_search(state: Annotated[dict, InjectedState], branches: List[str] = None) -> dict:
-    chat_history = state['messages']
+def vehicle_search(chat_history: List[str], branches: List[str] = None) -> dict:
     if branches is None:
         branches = []
     if len(branches) > 0:
@@ -48,7 +46,7 @@ def vehicle_search(state: Annotated[dict, InjectedState], branches: List[str] = 
     res = index.query(
         vector=vector,
         filter=query['filter'],
-        top_k=20,
+        top_k=10,
         include_metadata=True
     )
     sources = set(map(lambda x: x['metadata']['source'], res['matches']))
