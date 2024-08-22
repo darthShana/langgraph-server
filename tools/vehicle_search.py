@@ -5,6 +5,7 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.tools import StructuredTool
 from langchain_core.utils.json import parse_json_markdown
+from langgraph.prebuilt import InjectedState
 from tinydb import TinyDB, Query
 from pydantic.v1 import BaseModel, Field
 from retrievers.query_extractor import QueryExtractor
@@ -27,10 +28,6 @@ index = pc.Index("turners-sample-stock")
 
 query_extractor = QueryExtractor()
 chat = ChatAnthropic(model="claude-3-5-sonnet-20240620")
-
-
-class InjectedState:
-    pass
 
 
 class VehicleSearchInput(BaseModel):
