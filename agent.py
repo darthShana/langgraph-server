@@ -14,6 +14,7 @@ import sqlite3
 
 from model.user_profile import UserProfile
 from tools.fetch_user_information import fetch_user_information_tool
+from tools.online_reviews import online_reviews_tool
 from tools.turners_geography import turners_geography_tool
 from tools.vehicle_search import vehicle_search_tool
 from tools.watch_list import add_to_watch_list_tool, get_watch_list_tool
@@ -96,6 +97,7 @@ tools = [
     fetch_user_information_tool,
     turners_geography_tool,
     vehicle_search_tool,
+    online_reviews_tool,
     add_to_watch_list_tool,
     get_watch_list_tool,
 ]
