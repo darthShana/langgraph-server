@@ -3,20 +3,9 @@ from typing import List
 from langchain_community.tools import TavilySearchResults
 from langchain_core.tools import StructuredTool
 from pydantic.v1 import BaseModel, Field
+from tavily import TavilyClient
 
-
-tool = TavilySearchResults(
-    max_results=5,
-    search_depth="advanced",
-    include_answer=True,
-    include_raw_content=True,
-    include_images=True,
-    # include_domains=[...],
-    # exclude_domains=[...],
-    # name="...",            # overwrite default tool name
-    # description="...",     # overwrite default tool description
-    # args_schema=...,       # overwrite default args_schema: BaseModel
-)
+tavily_client = TavilyClient(api_key="tvly-YOUR_API_KEY")
 
 
 class OnlineReviewsInput(BaseModel):
@@ -24,7 +13,7 @@ class OnlineReviewsInput(BaseModel):
 
 
 def online_review(vehicles: str):
-    return tool.invoke({'query': "find feedback about this vehicle from other experts and consumers?"})
+    return tavily_client.search("find feedback about this vehicle from other experts and consumers: "+vehicles)
 
 
 online_reviews_tool = StructuredTool.from_function(

@@ -1,14 +1,13 @@
 from datetime import datetime
-from typing import TypedDict, Annotated, Sequence, Literal
+from typing import TypedDict, Annotated, Sequence
 
-from langchain_core.messages import BaseMessage, ToolMessage
+from langchain_core.messages import BaseMessage
 from langchain_anthropic import ChatAnthropic
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable, RunnableConfig
-from langchain_community.tools.tavily_search import TavilySearchResults
-from langgraph.checkpoint.sqlite import SqliteSaver
-from langgraph.prebuilt import ToolNode, tools_condition
-from langgraph.graph import StateGraph, END, add_messages
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.prebuilt import tools_condition
+from langgraph.graph import StateGraph, add_messages
 import logging
 import sqlite3
 
@@ -48,23 +47,6 @@ class VirtualTina:
             else:
                 break
         return {"messages": result}
-
-
-def display_results(state: AgentState):
-    if messages := state.get("messages", []):
-        ai_message = messages[-1]
-        if isinstance(ai_message, ToolMessage) and ai_message.name == "vehicle_search":
-            return {"messages": [ai_message.content]}
-
-
-def route_tool_results(state: AgentState) -> Literal["assistant", "display_results"]:
-    if messages := state.get("messages", []):
-        ai_message = messages[-1]
-        if isinstance(ai_message, ToolMessage) and ai_message.name == "vehicle_search":
-            if has_results_to_show(ai_message.content):
-                return "display_results"
-
-    return "assistant"
 
 
 # Define the config
@@ -114,26 +96,17 @@ workflow.set_entry_point("fetch_user_info")
 workflow.add_node("fetch_user_info", user_info)
 workflow.add_node("assistant", VirtualTina(assistant_runnable))
 workflow.add_node("tools", create_tool_node_with_fallback(tools))
-workflow.add_node("display_results", display_results)
 
 workflow.add_edge("fetch_user_info", "assistant")
 workflow.add_conditional_edges(
     "assistant",
     tools_condition,
 )
-workflow.add_conditional_edges(
-    "tools",
-    route_tool_results,
-    {
-        "assistant": "assistant",
-        "display_results": "display_results"
-    }
-)
-workflow.add_edge("display_results", "__end__")
+workflow.add_edge("tools","assistant")
 
 # Finally, we compile it!
 # This compiles it into a LangChain Runnable,
 # meaning you can use it as you would any other runnable
 conn = sqlite3.connect(":memory:")
-checkpointer = SqliteSaver(conn)
-graph = workflow.compile(checkpointer=checkpointer)
+memory = MemorySaver()
+graph = workflow.compile(checkpointer=memory)

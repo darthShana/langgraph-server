@@ -9,3 +9,4 @@ pinecone-client
 langchain-pinecone
 langchain-voyageai
 langgraph-checkpoint-sqlite
+tavily-python
