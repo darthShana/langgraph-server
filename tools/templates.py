@@ -18,3 +18,12 @@ Include the last vehicle listings if present, always include the source of each 
 Previous conversation:
 {previous_conversation} 
 """
+
+custom_comparison_template = """
+Please provide a JSON response in the following format to the question provided, mark the json as ```json:
+{format_instructions}
+
+Given the provided list of vehicle details, compare them to highlight their differences
+Vehicles:
+{vehicles}
+"""
