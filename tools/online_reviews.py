@@ -1,11 +1,10 @@
-from typing import List
+import os
 
-from langchain_community.tools import TavilySearchResults
 from langchain_core.tools import StructuredTool
 from pydantic.v1 import BaseModel, Field
 from tavily import TavilyClient
 
-tavily_client = TavilyClient(api_key="tvly-YOUR_API_KEY")
+tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
 
 
 class OnlineReviewsInput(BaseModel):
