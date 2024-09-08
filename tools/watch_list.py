@@ -39,11 +39,12 @@ def get_watch_list(user_id: str) -> Optional[dict]:
     result = watchlist_db.search(Q.user_id == user_id)
     if len(result) > 0:
         result_dict = WatchList(**result[0]).dict()
-        vehicles = vehicle_db.search(Q.source in result_dict['vehicles'])
-        result_dict['vehicle_details'] = {}
-        for vehicle in vehicles:
-            result_dict['vehicle_details'][vehicle['source']] = vehicle
+        vehicle_details = {}
+        for v in result_dict['vehicles']:
+            vehicle_details = vehicle_db.search(Q.source == v)
+            vehicle_details[v] = vehicle_details
 
+        result_dict['vehicle_details'] = vehicle_details
         return result_dict
 
 
