@@ -15,7 +15,7 @@ class AddToWatchListInput(BaseModel):
     sources: List[str] = Field("the source url of the vehicle to be added to this watch list")
 
 
-def add_to_watch_list(user_id: str, sources: List[str]) -> None:
+def add_to_watch_list(user_id: str, sources: List[str]):
     Q = Query()
     result = watchlist_db.search(Q.user_id == user_id)
     if len(result) > 0:
@@ -28,6 +28,7 @@ def add_to_watch_list(user_id: str, sources: List[str]) -> None:
         w.vehicles.append(source)
 
     watchlist_db.update(w.dict(), Q.user_id == user_id)
+    return get_watch_list(user_id)
 
 
 class GetWatchListInput(BaseModel):
