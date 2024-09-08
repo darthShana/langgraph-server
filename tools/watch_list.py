@@ -1,5 +1,5 @@
 import uuid
-from typing import Optional
+from typing import Optional, List
 from langchain_core.tools import StructuredTool
 from pydantic.v1 import BaseModel, Field
 from tinydb import TinyDB, Query
@@ -11,10 +11,10 @@ db = TinyDB('db/watch_list.json')
 
 class AddToWatchListInput(BaseModel):
     user_id: str = Field("user id of the the user this watch list belongs to")
-    source: str = Field("the source url of the vehicle to be added to this watch list")
+    sources: List[str] = Field("the source url of the vehicle to be added to this watch list")
 
 
-def add_to_watch_list(user_id: str, source: str) -> None:
+def add_to_watch_list(user_id: str, sources: List[str]) -> None:
     Q = Query()
     result = db.search(Q.user_id == user_id)
     if len(result) > 0:
@@ -23,7 +23,9 @@ def add_to_watch_list(user_id: str, source: str) -> None:
         w = WatchList(user_id=user_id, vehicles=[], comments=[])
         db.insert(w.dict())
 
-    w.vehicles.append(source)
+    for source in sources:
+        w.vehicles.append(source)
+
     db.update(w.dict(), Q.user_id == user_id)
 
 
