@@ -33,11 +33,11 @@ class GetWatchListInput(BaseModel):
     user_id: str = Field("user id of the the user this watch list")
 
 
-def get_watch_list(user_id: str) -> Optional[WatchList]:
+def get_watch_list(user_id: str) -> Optional[dict]:
     Q = Query()
     result = db.search(Q.user_id == user_id)
     if len(result) > 0:
-        return WatchList(**result[0])
+        return WatchList(**result[0]).dict()
 
 
 add_to_watch_list_tool = StructuredTool.from_function(
