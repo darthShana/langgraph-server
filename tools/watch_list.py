@@ -6,7 +6,8 @@ from tinydb import TinyDB, Query
 
 from model.watch_list import WatchList
 
-db = TinyDB('db/watch_list.json')
+watchlist_db = TinyDB('db/watch_list.json')
+vehicle_db = TinyDB('db/db.json')
 
 
 class AddToWatchListInput(BaseModel):
@@ -16,17 +17,17 @@ class AddToWatchListInput(BaseModel):
 
 def add_to_watch_list(user_id: str, sources: List[str]) -> None:
     Q = Query()
-    result = db.search(Q.user_id == user_id)
+    result = watchlist_db.search(Q.user_id == user_id)
     if len(result) > 0:
         w = WatchList(**result[0])
     else:
         w = WatchList(user_id=user_id, vehicles=[], comments=[])
-        db.insert(w.dict())
+        watchlist_db.insert(w.dict())
 
     for source in sources:
         w.vehicles.append(source)
 
-    db.update(w.dict(), Q.user_id == user_id)
+    watchlist_db.update(w.dict(), Q.user_id == user_id)
 
 
 class GetWatchListInput(BaseModel):
@@ -35,9 +36,15 @@ class GetWatchListInput(BaseModel):
 
 def get_watch_list(user_id: str) -> Optional[dict]:
     Q = Query()
-    result = db.search(Q.user_id == user_id)
+    result = watchlist_db.search(Q.user_id == user_id)
     if len(result) > 0:
-        return WatchList(**result[0]).dict()
+        result_dict = WatchList(**result[0]).dict()
+        vehicles = vehicle_db.search(Q.source in result_dict['vehicles'])
+        result_dict['vehicle_details'] = {}
+        for vehicle in vehicles:
+            result_dict['vehicle_details'][vehicle['source']] = vehicle
+
+        return result_dict
 
 
 add_to_watch_list_tool = StructuredTool.from_function(
