@@ -42,8 +42,8 @@ def get_watch_list(user_id: str) -> Optional[dict]:
         result_dict = WatchList(**result[0]).dict()
         vehicle_details = {}
         for v in result_dict['vehicles']:
-            vehicle_details = vehicle_db.search(Q.source == v)
-            vehicle_details[v] = vehicle_details
+            vehicle_detail = vehicle_db.search(Q.source == v)
+            vehicle_details[v] = vehicle_detail
 
         result_dict['vehicle_details'] = vehicle_details
         return result_dict
