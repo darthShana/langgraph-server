@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 
 
 class TurnersScraper:
-    chat = ChatAnthropic(model="claude-3-sonnet-20240229")
+    chat = ChatAnthropic(model="claude-3-5-sonnet-20240620")
     parser = JsonOutputParser(pydantic_object=VehicleListing)
     vector_store = VectorDB()
     db = TinyDB('db/db.json')
