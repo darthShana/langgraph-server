@@ -1,8 +1,8 @@
 import os
 
 from langchain_core.tools import StructuredTool
-from pydantic.v1 import BaseModel, Field
 from tavily import TavilyClient
+from pydantic import BaseModel, Field
 
 tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
 

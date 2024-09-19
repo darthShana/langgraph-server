@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import TypedDict, Annotated, Sequence
 
-from langchain_core.messages import BaseMessage
 from langchain_anthropic import ChatAnthropic
+from langchain_core.messages import BaseMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable, RunnableConfig
 from langgraph.checkpoint.memory import MemorySaver
@@ -13,7 +13,7 @@ import sqlite3
 
 from model.user_profile import UserProfile
 from tools.fetch_user_information import fetch_user_information_tool
-from tools.online_reviews import online_reviews_tool
+from langchain_aws import ChatBedrock
 from tools.turners_geography import turners_geography_tool
 from tools.vehicle_comparison import vehicle_comparison_tool
 from tools.vehicle_search import vehicle_search_tool
@@ -56,8 +56,8 @@ class GraphConfig(TypedDict):
     user_id: str
 
 
-# Define the two nodes we will cycle between
 llm = ChatAnthropic(model="claude-3-5-sonnet-20240620", temperature=0)
+
 
 assistant_prompt = ChatPromptTemplate.from_messages(
     [
@@ -65,8 +65,7 @@ assistant_prompt = ChatPromptTemplate.from_messages(
             "system",
             "You are a helpful but sassy assistant working for Turners Automotive, a used vehicle marketplace for cars, trucks and machinery in New Zealand."
             "Respond to user queries in a concise manner to reduce the amount they have to read"
-            "Use the provided tools to search for vehicles and other information to assist the user's queries, only if necessary."
-            "Only use the `turners_geography_tool` if a specific location is mentioned in the conversation."
+            "Use the provided tools to assist the user's job to be done, only if necessary."
             " When searching, be persistent. Expand your query bounds if the first search returns no results. "
             " If a search comes up empty, expand your search before giving up."
             "\n\nCurrent user:\n<User>\n{user_info}\n</User>"

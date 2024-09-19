@@ -3,11 +3,12 @@ import os
 from typing import List
 
 from langchain_anthropic import ChatAnthropic
+from langchain_aws import ChatBedrock
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.tools import StructuredTool
 from langchain_core.utils.json import parse_json_markdown
-from pydantic.v1 import BaseModel, Field
+from pydantic import BaseModel, Field
 from tinydb import Query, TinyDB
 from tavily import TavilyClient
 
@@ -16,7 +17,8 @@ from tools.templates import custom_comparison_template
 log = logging.getLogger(__name__)
 db = TinyDB('db/db.json')
 tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
-chat = ChatAnthropic(model="claude-3-5-sonnet-20240620")
+chat = ChatAnthropic(model="claude-3-5-sonnet-20240620", temperature=0)
+
 
 
 class VehicleQuery(BaseModel):

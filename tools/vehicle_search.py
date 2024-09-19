@@ -1,19 +1,21 @@
 import os
 from typing import List, Optional
 
+from langchain_anthropic import ChatAnthropic
+from langchain_aws import ChatBedrock
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.tools import StructuredTool
 from langchain_core.utils.json import parse_json_markdown
 from tinydb import TinyDB, Query
-from pydantic.v1 import BaseModel, Field
 from retrievers.query_extractor import QueryExtractor
 from pinecone import Pinecone
+from pydantic import BaseModel, Field
+
 import voyageai
 import logging
 
 from tools.templates import custom_stuff_template
-from langchain_anthropic import ChatAnthropic
 
 from tools.tool_schema import VehicleSearchResults
 
@@ -26,19 +28,19 @@ index = pc.Index("turners-sample-stock")
 
 
 query_extractor = QueryExtractor()
-chat = ChatAnthropic(model="claude-3-5-sonnet-20240620")
+chat = ChatAnthropic(model="claude-3-5-sonnet-20240620", temperature=0)
 
 
 class VehicleSearchInput(BaseModel):
     chat_history: List[str] = Field(description="the chat history between an ai and human looking for a suitable vehicle")
-    branches: Optional[List[str]] = Field(description="an optional list of turners branches where the results can be filtered.")
+    turners_locations: Optional[List[str]] = Field(description="an optional list of turners locations where the human is looking for a vehicle.")
 
 
-def vehicle_search(chat_history: List[str], branches: List[str] = None) -> dict:
-    if branches is None:
-        branches = []
-    if len(branches) > 0:
-        chat_history.append(f"ai:the relevant Turners locations to search are {','.join(branches)}")
+def vehicle_search(chat_history: List[str], turners_locations: List[str] = None) -> dict:
+    if turners_locations is None:
+        turners_locations = []
+    if len(turners_locations) > 0:
+        chat_history.append(f"ai:the relevant Turners locations to search are {','.join(turners_locations)}")
 
     query = query_extractor.extract_query(chat_history)
     log.info(f"query: {query}")

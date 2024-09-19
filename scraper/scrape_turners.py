@@ -5,14 +5,15 @@ import requests
 import re
 
 from bs4 import BeautifulSoup
+from langchain_anthropic import ChatAnthropic
+from langchain_aws import ChatBedrock
 from langchain_community.document_loaders import AsyncHtmlLoader
 from langchain_community.document_transformers import BeautifulSoupTransformer
 from langchain_core.documents import Document
-from langchain_anthropic import ChatAnthropic
 from langchain_core.utils.json import parse_json_markdown
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
-from pydantic.v1 import ValidationError
+from pydantic import ValidationError
 from tinydb import TinyDB, Query
 
 from scraper.vector_db import VectorDB
@@ -24,7 +25,8 @@ log = logging.getLogger(__name__)
 
 
 class TurnersScraper:
-    chat = ChatAnthropic(model="claude-3-5-sonnet-20240620")
+    chat = ChatAnthropic(model="claude-3-5-sonnet-20240620", temperature=0)
+
     parser = JsonOutputParser(pydantic_object=VehicleListing)
     vector_store = VectorDB()
     db = TinyDB('db/db.json')

@@ -1,8 +1,8 @@
 import uuid
 from typing import Optional, List
 from langchain_core.tools import StructuredTool
-from pydantic.v1 import BaseModel, Field
 from tinydb import TinyDB, Query
+from pydantic import BaseModel, Field
 
 from model.watch_list import WatchList
 

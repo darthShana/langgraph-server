@@ -1,6 +1,7 @@
-from langchain_anthropic import ChatAnthropic
 import logging
 
+from langchain_anthropic import ChatAnthropic
+from langchain_aws import ChatBedrock
 from langchain_core.prompts import PromptTemplate, FewShotPromptWithTemplates
 from langchain_core.utils.json import parse_json_markdown
 
@@ -10,7 +11,8 @@ log = logging.getLogger(__name__)
 
 
 class QueryExtractor:
-    chat = ChatAnthropic(model="claude-3-5-sonnet-20240620")
+    chat = ChatAnthropic(model="claude-3-5-sonnet-20240620", temperature=0)
+
     metadata_field_info = {
         "content": "Vehicle Listings",
         "attributes": [
