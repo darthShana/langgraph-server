@@ -33,10 +33,10 @@ chat = ChatAnthropic(model="claude-3-5-sonnet-20240620", temperature=0)
 
 class VehicleSearchInput(BaseModel):
     chat_history: List[str] = Field(description="the chat history between an ai and human looking for a suitable vehicle")
-    turners_locations: Optional[List[str]] = Field(description="an optional list of turners locations where the human is looking for a vehicle.")
+    turners_locations: List[str] = Field(description="a list of turners branches where the human is looking for a vehicle.")
 
 
-def vehicle_search(chat_history: List[str], turners_locations: List[str] = None) -> dict:
+def vehicle_search(chat_history: List[str], turners_locations: List[str]) -> dict:
     if turners_locations is None:
         turners_locations = []
     if len(turners_locations) > 0:

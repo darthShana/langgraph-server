@@ -25,8 +25,7 @@ def fetch_user_information() -> UserProfile:
     else:
         profile = UserProfile(
             user_id=user_id,
-            name="",
-            preferred_branches=[]
+            name=""
         )
         db.insert(profile.dict())
         return profile
@@ -36,6 +35,6 @@ fetch_user_information_tool = StructuredTool.from_function(
     func=fetch_user_information,
     name="fetch_user_information",
     description="""
-        Fetches known information about a user including what locations they are looking for vehicles in
+        Fetches known information about a user including the user id
         """,
 )
