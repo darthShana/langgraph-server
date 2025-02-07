@@ -1,23 +1,22 @@
 from datetime import datetime
 from typing import TypedDict, Annotated, Sequence
 
-from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import BaseMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable, RunnableConfig
+from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import tools_condition
 from langgraph.graph import StateGraph, add_messages
 import logging
 import sqlite3
 
-from model.user_profile import UserProfile
-from tools.fetch_user_information import fetch_user_information_tool
-from langchain_aws import ChatBedrock
-from tools.turners_geography import turners_geography_tool
-from tools.vehicle_comparison import vehicle_comparison_tool
-from tools.vehicle_search import vehicle_search_tool
-from tools.watch_list import add_to_watch_list_tool, get_watch_list_tool
+from tina.model.user_profile import UserProfile
+from tina.tools.fetch_user_information import fetch_user_information_tool
+from tina.tools.turners_geography import turners_geography_tool
+from tina.tools.vehicle_comparison import vehicle_comparison_tool
+from tina.tools.vehicle_search import vehicle_search_tool
+from tina.tools.watch_list import add_to_watch_list_tool, get_watch_list_tool
 from utils import create_tool_node_with_fallback, has_results_to_show
 
 log = logging.getLogger(__name__)
@@ -56,14 +55,14 @@ class GraphConfig(TypedDict):
     user_id: str
 
 
-llm = ChatAnthropic(model="claude-3-5-sonnet-20240620", temperature=0)
+llm = ChatOpenAI(model="gpt-4o")
 
 
 assistant_prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            "You are a helpful but sassy assistant working for Turners Automotive, a used vehicle marketplace for cars, trucks and machinery in New Zealand."
+            "You are a helpful but sassy assistant working for Turners Automotive, a used vehicle retailer for cars with branches throughout New Zealand."
             "Respond to user queries in a concise manner to reduce the amount they have to read"
             "Use the provided tools to assist the user's job to be done, only if necessary."
             " When searching, be persistent. Expand your query bounds if the first search returns no results. "

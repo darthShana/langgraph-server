@@ -4,7 +4,7 @@ from langchain_core.runnables import ensure_config
 from langchain_core.tools import StructuredTool
 from tinydb import TinyDB, Query
 
-from model.user_profile import UserProfile
+from tina.model.user_profile import UserProfile
 import logging
 log = logging.getLogger(__name__)
 db = TinyDB('db/user.json')

@@ -1,23 +1,22 @@
 import os
 from typing import List, Optional
 
-from langchain_anthropic import ChatAnthropic
-from langchain_aws import ChatBedrock
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.tools import StructuredTool
 from langchain_core.utils.json import parse_json_markdown
+from langchain_openai import ChatOpenAI
 from tinydb import TinyDB, Query
-from retrievers.query_extractor import QueryExtractor
+from tina.retrievers.query_extractor import QueryExtractor
 from pinecone import Pinecone
 from pydantic import BaseModel, Field
 
 import voyageai
 import logging
 
-from tools.templates import custom_stuff_template
+from tina.tools.templates import custom_stuff_template
 
-from tools.tool_schema import VehicleSearchResults
+from tina.tools.tool_schema import VehicleSearchResults
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -28,7 +27,7 @@ index = pc.Index("turners-sample-stock")
 
 
 query_extractor = QueryExtractor()
-chat = ChatAnthropic(model="claude-3-5-sonnet-20240620", temperature=0)
+chat = ChatOpenAI(model="gpt-4o")
 
 
 class VehicleSearchInput(BaseModel):
@@ -77,7 +76,6 @@ vehicle_search_tool = StructuredTool.from_function(
     name="vehicle_search",
     description="""
         Useful for finding suitable vehicles that are available based on a chat history between an AI and human.
-        Only call once the conversation has sufficient information to extract criteria for search.
         """,
     args_schema=VehicleSearchInput,
 )

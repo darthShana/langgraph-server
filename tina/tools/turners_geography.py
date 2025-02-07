@@ -2,6 +2,7 @@ import json
 import logging
 import math
 import os
+from typing import List
 
 import requests
 from langchain_core.runnables import RunnableConfig
@@ -60,10 +61,11 @@ def create_viewport(latitude, longitude, distance_km):
 
 
 class TurnersGeographyInput(BaseModel):
-    distance: int = Field(description="return branches that are less than this distance away, Try with a distance of 5km, 10km then 20km to find suitable turners branches when looking for suitable vehicles")
+    chat_history: List[str] = Field(description="the chat history between an ai and human looking for a suitable vehicle")
+    distance: int = Field(description="max allowed distance to search for turners branches")
 
 
-def turners_geography(config: RunnableConfig, distance: int) -> list[str] | None:
+def turners_geography(config: RunnableConfig, chat_history: List[str], distance: int) -> list[str] | None:
     log.info("in here turners Geography")
     lat = config.get("configurable", {}).get("latitude")
     long = config.get("configurable", {}).get("longitude")
@@ -97,7 +99,8 @@ turners_geography_tool = StructuredTool.from_function(
     func=turners_geography,
     name="turners_locations",
     description="""
-        Get the turners branches which can be used in subsequent actions to find vehicles.
+        Get the turners branches near a user which can be used in subsequent actions to find vehicles.
+        do not ask the user for the distance to use just try 5, 10, 20km to return more branched if needed 
         """,
     args_schema=TurnersGeographyInput,
 )

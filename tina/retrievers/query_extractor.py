@@ -1,17 +1,16 @@
 import logging
 
-from langchain_anthropic import ChatAnthropic
-from langchain_aws import ChatBedrock
+from langchain_openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate, FewShotPromptWithTemplates
 from langchain_core.utils.json import parse_json_markdown
 
-from retrievers.templates import query_extraction_example_template, query_extraction_prefix, query_extraction_examples
+from tina.retrievers.templates import query_extraction_example_template, query_extraction_prefix, query_extraction_examples
 
 log = logging.getLogger(__name__)
 
 
 class QueryExtractor:
-    chat = ChatAnthropic(model="claude-3-5-sonnet-20240620", temperature=0)
+    chat = ChatOpenAI(model="gpt-4o")
 
     metadata_field_info = {
         "content": "Vehicle Listings",

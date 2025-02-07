@@ -4,7 +4,7 @@ from langchain_core.tools import StructuredTool
 from tinydb import TinyDB, Query
 from pydantic import BaseModel, Field
 
-from model.watch_list import WatchList
+from tina.model.watch_list import WatchList
 
 watchlist_db = TinyDB('db/watch_list.json')
 vehicle_db = TinyDB('db/db.json')
