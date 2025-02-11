@@ -47,7 +47,7 @@ def vehicle_search(chat_history: List[str], turners_locations: List[str]) -> dic
     res = index.query(
         vector=vector,
         filter=query['filter'],
-        top_k=10,
+        top_k=5,
         include_metadata=True
     )
     sources = set(map(lambda x: x['metadata']['source'], res['matches']))
