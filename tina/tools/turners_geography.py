@@ -1,13 +1,12 @@
-import json
 import logging
-import math
 import os
-from typing import List
-
 import requests
+from dataclasses import dataclass
+from typing import List
+from math import radians, sin, cos, sqrt, atan2
 from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import StructuredTool
-from tinydb import TinyDB, Query
+from tinydb import TinyDB
 from pydantic import BaseModel, Field
 
 
@@ -15,52 +14,58 @@ log = logging.getLogger(__name__)
 db = TinyDB('db/user.json')
 API_KEY = os.environ["GOOGLE_API_KEY"]
 
-excluded_branches = [
-    "Turners Cars Penrose Gavin Street (CashNow Bookings Only)",
-    "Turners Service Centre",
-    "Turners Automotive Group"
+@dataclass
+class TurnersLocation:
+    name: str
+    place_id: str
+    lat: float = None
+    lng: float = None
+
+turners_locations = [
+    TurnersLocation("Whangarei", "ChIJ78PKBpF_C20RfpuC-APsyOQ", -35.72785760000001, 174.3174743),
+    TurnersLocation("Westgate", "ChIJ8VthVocVDW0RZlEmxsQFWDQ", -36.8133642, 174.5982985),
+    TurnersLocation("North Shore", "ChIJ5QDhLBY5DW0RpN1-oxvF6jU", -36.78159469999999, 174.7387267),
+    TurnersLocation("Otahuhu", "ChIJjy_eGklPDW0R36XU6jQ40DE", -36.9353754, 174.8359329),
+    TurnersLocation("Penrose", "ChIJsW3Tl_9JDW0R1EUZebXpT64", -36.9232054, 174.8308598),
+    TurnersLocation("Botany", "ChIJAcZtXglLDW0R1ingXWQc7BI", -36.9275797, 174.8986172),
+    TurnersLocation("Manukau", "ChIJF0KPOLlNDW0RcIiSemD8wrE", -36.9811325, 174.8780199),
+    TurnersLocation("Avalon Drive", "ChIJtZJqBkYibW0RPeFKZTdshIk", -37.771588, 175.241755),
+    TurnersLocation("Te Rapa Road", "ChIJHRaXk9gjbW0R2kIVS7nsxeQ", -37.7491149, 175.2369995),
+    TurnersLocation("Tauranga", "ChIJNf8OrjXZbW0RCYtBwUkNn9s", -37.65466899999999, 176.194621),
+    TurnersLocation("New Plymouth", "ChIJ4xSoq-tRFG0Rd_z1U6zhwE4", -39.04653220000001, 174.1171492),
+    TurnersLocation("Napier", "ChIJ9w4QRi-zaW0R4pkHj-sTcj4", -39.48771920000001, 176.8903531),
+    TurnersLocation("Rotorua", "ChIJQWuHh14nbG0RYj0lqC7UWyQ", -38.1213113, 176.2286733),
+    TurnersLocation("Palmerston North", "ChIJ7cM3bNJMQG0RIkz2VM8Mo4Q", -40.33851, 175.59865),
+    TurnersLocation("Porirua", "ChIJxQ4nMzuqOG0RigCkGXr8uz0", -41.1356877, 174.8335961),
+    TurnersLocation("Nelson", "ChIJ_QoDmG_tO20RP6x2lQ9Ykdk", -41.276371, 173.2740325),
+    TurnersLocation("Christchurch", "ChIJJ2IFdWOKMW0Rzj6DUgarHCM", -43.5404835, 172.610001),
+    TurnersLocation("Timaru", "ChIJyd5-V8TrLG0RZDnoJPtGCiw", -44.3567299, 171.2389725),
+    TurnersLocation("Dunedin", "ChIJAdB74h-sLqgRlpj0jEfplo0", -45.869141, 170.5209478),
+    TurnersLocation("Invercargill", "ChIJ-4BdwFXD0qkRoGTJ5ro7ZRk", -46.38866520000001, 168.3470581),
 ]
 
 
-def create_viewport(latitude, longitude, distance_km):
-    # Earth's radius in kilometers
-    earth_radius = 6371
-
-    # Convert latitude and longitude to radians
-    lat_rad = math.radians(latitude)
-    lon_rad = math.radians(longitude)
-
-    # Angular distance in radians on a great circle
-    angular_distance = distance_km / earth_radius
-
-    # Calculate the change in latitude
-    delta_lat = angular_distance
-
-    # Calculate the change in longitude
-    delta_lon = math.asin(math.sin(angular_distance) / math.cos(lat_rad))
-
-    # Calculate the coordinates of the viewport
-    min_lat = latitude - math.degrees(delta_lat)
-    max_lat = latitude + math.degrees(delta_lat)
-    min_lon = longitude - math.degrees(delta_lon)
-    max_lon = longitude + math.degrees(delta_lon)
-
-    # Create the viewport dictionary
-    viewport = {
-        "low": {
-            "latitude": min_lat,
-            "longitude": min_lon
-        },
-        "high": {
-            "latitude": max_lat,
-            "longitude": max_lon
-        }
+def get_location_details(place_id: str) -> tuple:
+    """Get latitude and longitude for a place ID using Google Places API"""
+    url = f"https://maps.googleapis.com/maps/api/place/details/json"
+    params = {
+        "place_id": place_id,
+        "fields": "geometry",
+        "key": API_KEY
     }
 
-    return viewport
+    response = requests.get(url, params=params)
+
+    if response.status_code == 200:
+        result = response.json()
+        if result.get("result") and result["result"].get("geometry"):
+            location = result["result"]["geometry"]["location"]
+            return location["lat"], location["lng"]
+    return None, None
 
 
 class TurnersGeographyInput(BaseModel):
+    config: RunnableConfig = Field(description="runnable config")
     chat_history: List[str] = Field(description="the chat history between an ai and human looking for a suitable vehicle")
     distance: int = Field(description="max allowed distance to search for turners branches")
 
@@ -68,42 +73,54 @@ class TurnersGeographyInput(BaseModel):
 def turners_geography(config: RunnableConfig, chat_history: List[str], distance: int) -> list[str] | None:
     log.info("in here turners Geography")
     lat = config.get("configurable", {}).get("latitude")
-    long = config.get("configurable", {}).get("longitude")
-    log.info(f"getting turners locations for lat:{lat}, long:{long}")
+    lng = config.get("configurable", {}).get("longitude")
+    log.info(f"getting turners locations for lat:{lat}, long:{lng}")
 
-    url = 'https://places.googleapis.com/v1/places:searchText'
+    for location in turners_locations:
+        if location.lat is None or location.lng is None:
+            location.lat, location.lng = get_location_details(location.place_id)
+            print(f"{location.name}, lat:{location.lat}, lng:{location.lng}")
 
-    headers = {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': API_KEY,
-        'X-Goog-FieldMask': 'places.id,places.displayName'
-    }
+    def calculate_distance(lat1, lon1, lat2, lon2):
+        """Calculate distance between two points using Haversine formula"""
+        R = 6371  # Earth's radius in kilometers
 
-    payload = {
-        "textQuery": "Turners Cars",
-        "locationRestriction": {
-            "rectangle": create_viewport(lat, long, distance)
-        }
-    }
+        lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
 
-    response = requests.post(url, headers=headers, data=json.dumps(payload))
-    log.info(response.json())
+        a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+        c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        _distance = R * c
 
-    if 'places' in response.json():
-        return [place['displayName']['text'] for place in response.json()['places'] if place['displayName']['text'] not in excluded_branches]
-    else:
-        return None
+        return _distance
+
+    # Filter locations within radius
+    nearby_locations = [
+        location.name for location in turners_locations
+        if location.lat is not None
+        and location.lng is not None
+        and calculate_distance(lat, lng, location.lat, location.lng) <= distance
+    ]
+
+    return nearby_locations
 
 
 turners_geography_tool = StructuredTool.from_function(
     func=turners_geography,
     name="turners_locations",
     description="""
-        Get the turners branches near a user which can be used in subsequent actions to find vehicles.
+        Get the turners branches near a user which can be used in subsequent tools to find vehicles.
         do not ask the user for the distance to use just try 5, 10, 20km to return more branched if needed 
         """,
     args_schema=TurnersGeographyInput,
 )
 
 if __name__ == "__main__":
-    turners_geography({}, 10)
+    # -36.907474353046766, 174.79087999884032
+    nearby_locations = turners_geography({"configurable": {
+        "latitude": -36.907474353046766,
+        "longitude": 174.79087999884032
+    }}, [], 10)
+
+    print(nearby_locations)

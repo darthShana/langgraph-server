@@ -1,7 +1,8 @@
 from typing import Optional
 
-from langchain_core.pydantic_v1 import BaseModel, Field
 from enum import Enum
+
+from pydantic import BaseModel, Field
 
 
 class FuelEnum(str, Enum):
@@ -11,27 +12,27 @@ class FuelEnum(str, Enum):
 
 
 class LocationEnum(str, Enum):
-    whangarei = "Whangarei",
-    westgate = "Westgate",
-    northShore = "North Shore",
-    otahuhu = "Otahuhu",
-    penrose = "Penrose",
-    botany = "Botany",
-    manukau = "Manukau",
-    hamilton = "Hamilton"
-    tauranga = "Tauranga",
-    newPlymouth = "New Plymouth"
-    napier = "Napier"
-    rotorua = "Rotorua"
-    palmerstonNorth = "Palmerston North"
-    wellingto = "Wellington"
-    porirua = "Porirua"
-    nelson = "Nelson"
-    christchurch = "Christchurch"
-    timaru = "Timaru"
-    dunedin = "Dunedin"
-    invercargill = "Invercargill"
-    auckland_trucks = "Turners Auckland Trucks"
+    whangarei = "Whangarei", "Corner Walton Street and Maunu Road"
+    westgate = "Westgate", "Corner of Fred Taylor Drive & Kakano Road"
+    northShore = "North Shore", "201 Archers Road, Wairau Valley, Auckland"
+    otahuhu = "Otahuhu", "1120 Great South Road, Otahuhu, Auckland"
+    penrose = "Penrose", "1000 - 1008 Great South Road, Penrose"
+    botany = "Botany", "183 Harris Road, East Tamaki"
+    manukau = "Manukau", "590 Great South Road, Manukau, Auckland"
+    te_rapa_road = "Te Rapa Road", "850 Te Rapa Road, Hamilton"
+    avalon_drive = "Avalon Drive", "112 Avalon Drive, Hamilton"
+    tauranga = "Tauranga", "26 Hull Road, Mt Maunganui, Tauranga"
+    newPlymouth = "New Plymouth", "690 Devon Road, New Plymouth"
+    napier = "Napier", "31 Pandora Road, Napier"
+    rotorua = "Rotorua", "44 Fairy Springs Road, Fairy Springs, Rotorua"
+    palmerstonNorth = "Palmerston North", "201 John F Kennedy Drive, Palmerston North"
+    porirua = "Porirua", "9 John Seddon Drive, Elsdon, Porirua, Wellington"
+    nelson = "Nelson", "85 St Vincent Street"
+    christchurch = "Christchurch", "1 Detroit Place, Christchurch"
+    timaru = "Timaru", "1 Meadows Road, Washdyke, Timaru"
+    dunedin = "Dunedin", "112 Anzac Avenue, Dunedin"
+    invercargill = "Invercargill", "26 North Road, Invercargill"
+    auckland_trucks = "Turners Auckland Trucks", ""
 
 
 class VehicleTypeEnum(str, Enum):

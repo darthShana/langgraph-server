@@ -5,19 +5,18 @@ import requests
 import re
 
 from bs4 import BeautifulSoup
-from langchain_anthropic import ChatAnthropic
-from langchain_aws import ChatBedrock
 from langchain_community.document_loaders import AsyncHtmlLoader
 from langchain_community.document_transformers import BeautifulSoupTransformer
 from langchain_core.documents import Document
 from langchain_core.utils.json import parse_json_markdown
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
+from langchain_openai import OpenAI
 from pydantic import ValidationError
 from tinydb import TinyDB, Query
 
 from scraper.vector_db import VectorDB
-from scraper.vehicle_listing import VehicleListing, VehicleListingMetadata
+from scraper.vehicle_listing import VehicleListing
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -25,7 +24,7 @@ log = logging.getLogger(__name__)
 
 
 class TurnersScraper:
-    chat = ChatAnthropic(model="claude-3-5-sonnet-20240620", temperature=0)
+    chat = OpenAI(model="gpt-4o")
 
     parser = JsonOutputParser(pydantic_object=VehicleListing)
     vector_store = VectorDB()
@@ -122,7 +121,7 @@ class TurnersScraper:
         chain = prompt | self.chat
         output_from_claude = chain.invoke({"page_content": doc.page_content})
         markdown = parse_json_markdown(output_from_claude.content)
-        listing = VehicleListing.parse_obj(markdown)
+        listing = VehicleListing.model_validate(markdown)
 
         template = """Please provide a JSON response in the following format to the question provided, mark the json as ```json:
             {format_instructions}
