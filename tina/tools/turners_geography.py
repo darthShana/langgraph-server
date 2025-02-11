@@ -66,11 +66,10 @@ def get_location_details(place_id: str) -> tuple:
 
 class TurnersGeographyInput(BaseModel):
     config: RunnableConfig = Field(description="runnable config")
-    chat_history: List[str] = Field(description="the chat history between an ai and human looking for a suitable vehicle")
     distance: int = Field(description="max allowed distance to search for turners branches")
 
 
-def turners_geography(config: RunnableConfig, chat_history: List[str], distance: int) -> list[str] | None:
+def turners_geography(config: RunnableConfig, distance: int) -> list[str] | None:
     log.info("in here turners Geography")
     lat = config.get("configurable", {}).get("latitude")
     lng = config.get("configurable", {}).get("longitude")
@@ -108,10 +107,10 @@ def turners_geography(config: RunnableConfig, chat_history: List[str], distance:
 
 turners_geography_tool = StructuredTool.from_function(
     func=turners_geography,
-    name="turners_locations",
+    name="turners_geography",
     description="""
-        Get the turners branches near a user which can be used in subsequent tools to find vehicles.
-        do not ask the user for the distance to use just try 5, 10, 20km to return more branched if needed 
+        Used to the turners branches near a user which can be used in subsequent tools to find vehicles. from the context
+        do not ask the user for the distance to use just try 5, 10, 20km to return more branched if needed.
         """,
     args_schema=TurnersGeographyInput,
 )

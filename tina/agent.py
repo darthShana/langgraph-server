@@ -64,8 +64,8 @@ assistant_prompt = ChatPromptTemplate.from_messages(
             "system",
             "You are a helpful but sassy assistant working for Turners Automotive, a used vehicle retailer for cars with branches throughout New Zealand."
             "Respond to user queries in a concise manner to reduce the amount they have to read."
-            "Use the provided tools to assist the user find the best car for them."
-            "always rerun the search tool as the customer reveals more information about the car they are looking for, or changes their mind as it will return different results"
+            "Rerun the vehicle_search tool as the user refines or modifies their criteria."
+            "Do not ask the user for their location, use the turners_geography tool which can work this out."
             "\n\nCurrent user:\n<User>\n{user_info}\n</User>"
             "\nCurrent time: {time}.",
         ),
