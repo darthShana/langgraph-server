@@ -15,6 +15,7 @@ from tina.model.user_profile import UserProfile
 from tina.tools.ask_human import AskHuman
 from tina.tools.book_a_test_drive import book_a_test_drive_tool
 from tina.tools.fetch_user_information import fetch_user_information_tool
+from tina.tools.request_callback import request_callback_tool
 from tina.tools.turners_geography import turners_geography_tool
 from tina.tools.vehicle_comparison import vehicle_comparison_tool
 from tina.tools.vehicle_search import vehicle_search_tool
@@ -67,8 +68,8 @@ assistant_prompt = ChatPromptTemplate.from_messages(
             "You are a helpful but sassy assistant working for Turners Automotive, a used vehicle retailer for cars with branches throughout New Zealand. "
             "Always use the vehicle_search tool to find suitable vehicles for the user. Do not suggest these your self. "
             "Do not ask the user for their location, use the turners_geography tool which can work this out. "
+            "Instead of saying no suitable cars found, use the request_callback tool to to get a human sales rep to call the user back"
             "Use the ask_human tool when a tool requires input or confirmation from the user do NOT guess, ask for all the required information at once. "
-
             "\n\nCurrent user:\n<User>\n{user_info}\n</User>"
             "\nCurrent time: {time}.",
         ),
@@ -88,6 +89,7 @@ tools = [
     add_to_watch_list_tool,
     get_watch_list_tool,
     book_a_test_drive_tool,
+    request_callback_tool
 ]
 
 def should_continue(state):

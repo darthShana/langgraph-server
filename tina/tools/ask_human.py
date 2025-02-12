@@ -13,4 +13,5 @@ class Question(BaseModel):
     answer_type: AnswerType = Field(description="the type od answer to the question being asked")
 
 class AskHuman(BaseModel):
+    blurb: str = Field(description="the blurb about why the questions are being asked")
     questions: List[Question] = Field(description='the questions to ask')
