@@ -1,5 +1,6 @@
 import logging
 
+from langchain.chat_models import init_chat_model
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate, FewShotPromptWithTemplates
 from langchain_core.utils.json import parse_json_markdown
@@ -10,7 +11,7 @@ log = logging.getLogger(__name__)
 
 
 class QueryExtractor:
-    chat = ChatOpenAI(model="gpt-4o")
+    chat = init_chat_model("gpt-4o", model_provider="openai")
 
     metadata_field_info = {
         "content": "Vehicle Listings",

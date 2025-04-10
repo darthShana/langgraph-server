@@ -2,6 +2,7 @@ import logging
 import os
 from typing import List
 
+from langchain.chat_models import init_chat_model
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.tools import StructuredTool
@@ -16,7 +17,7 @@ from tina.tools.templates import custom_comparison_template
 log = logging.getLogger(__name__)
 db = TinyDB('db/db.json')
 tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
-chat = ChatOpenAI(model="gpt-4o")
+chat = init_chat_model("gpt-4o", model_provider="openai")
 
 
 

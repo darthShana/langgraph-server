@@ -5,6 +5,7 @@ import requests
 import re
 
 from bs4 import BeautifulSoup
+from langchain.chat_models import init_chat_model
 from langchain_community.document_loaders import AsyncHtmlLoader
 from langchain_community.document_transformers import BeautifulSoupTransformer
 from langchain_core.documents import Document
@@ -24,7 +25,7 @@ log = logging.getLogger(__name__)
 
 
 class TurnersScraper:
-    chat = OpenAI(model="gpt-4o")
+    chat = init_chat_model("gpt-4o", model_provider="openai")
 
     parser = JsonOutputParser(pydantic_object=VehicleListing)
     vector_store = VectorDB()
@@ -85,7 +86,12 @@ class TurnersScraper:
             try:
                 listing = self.append_data_from_images(doc)
                 self.vector_store.save(listing, doc)
-                self.db.insert({'source': doc.metadata['source'], 'image': doc.metadata['image'], 'content': doc.page_content})
+                self.db.insert({
+                    'source': doc.metadata['source'],
+                    'image': doc.metadata['image'],
+                    'content': doc.page_content,
+                    'metadata': doc.metadata,
+                })
 
             except (ValidationError, JSONDecodeError) as e:
                 print(e)
@@ -160,7 +166,7 @@ class TurnersScraper:
                 image_urls.append(image['data-src'])
 
         output_from_claude = chain.invoke({
-            "page_content": listing.json(),
+            "page_content": listing.model_dump_json(),
             "images": image_urls
         })
         parsed_json = parse_json_markdown(output_from_claude.content)

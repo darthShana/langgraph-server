@@ -1,6 +1,7 @@
 import os
 from typing import List, Optional
 
+from langchain.chat_models import init_chat_model
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.tools import StructuredTool
@@ -27,7 +28,7 @@ index = pc.Index("turners-sample-stock")
 
 
 query_extractor = QueryExtractor()
-chat = ChatOpenAI(model="gpt-4o")
+chat = init_chat_model("gpt-4o", model_provider="openai")
 
 
 class VehicleSearchInput(BaseModel):

@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import TypedDict, Annotated, Sequence
 
+from langchain.chat_models import init_chat_model
 from langchain_core.messages import BaseMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable, RunnableConfig
@@ -16,6 +17,7 @@ from tina.tools.ask_human import AskHuman
 from tina.tools.book_a_test_drive import book_a_test_drive_tool
 from tina.tools.fetch_user_information import fetch_user_information_tool
 from tina.tools.request_callback import request_callback_tool
+from tina.tools.structured_search import structured_search_options_tool
 from tina.tools.turners_geography import turners_geography_tool
 from tina.tools.vehicle_comparison import vehicle_comparison_tool
 from tina.tools.vehicle_search import vehicle_search_tool
@@ -58,7 +60,7 @@ class GraphConfig(TypedDict):
     user_id: str
 
 
-llm = ChatOpenAI(model="gpt-4o")
+llm = init_chat_model("gpt-4o", model_provider="openai")
 
 
 assistant_prompt = ChatPromptTemplate.from_messages(
@@ -89,7 +91,8 @@ tools = [
     add_to_watch_list_tool,
     get_watch_list_tool,
     book_a_test_drive_tool,
-    request_callback_tool
+    request_callback_tool,
+    structured_search_options_tool
 ]
 
 def should_continue(state):

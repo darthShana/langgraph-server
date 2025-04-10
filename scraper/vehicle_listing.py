@@ -11,28 +11,54 @@ class FuelEnum(str, Enum):
     hybrid = 'Hybrid'
 
 
+
 class LocationEnum(str, Enum):
-    whangarei = "Whangarei", "Corner Walton Street and Maunu Road"
-    westgate = "Westgate", "Corner of Fred Taylor Drive & Kakano Road"
-    northShore = "North Shore", "201 Archers Road, Wairau Valley, Auckland"
-    otahuhu = "Otahuhu", "1120 Great South Road, Otahuhu, Auckland"
-    penrose = "Penrose", "1000 - 1008 Great South Road, Penrose"
-    botany = "Botany", "183 Harris Road, East Tamaki"
-    manukau = "Manukau", "590 Great South Road, Manukau, Auckland"
-    te_rapa_road = "Te Rapa Road", "850 Te Rapa Road, Hamilton"
-    avalon_drive = "Avalon Drive", "112 Avalon Drive, Hamilton"
-    tauranga = "Tauranga", "26 Hull Road, Mt Maunganui, Tauranga"
-    newPlymouth = "New Plymouth", "690 Devon Road, New Plymouth"
-    napier = "Napier", "31 Pandora Road, Napier"
-    rotorua = "Rotorua", "44 Fairy Springs Road, Fairy Springs, Rotorua"
-    palmerstonNorth = "Palmerston North", "201 John F Kennedy Drive, Palmerston North"
-    porirua = "Porirua", "9 John Seddon Drive, Elsdon, Porirua, Wellington"
-    nelson = "Nelson", "85 St Vincent Street"
-    christchurch = "Christchurch", "1 Detroit Place, Christchurch"
-    timaru = "Timaru", "1 Meadows Road, Washdyke, Timaru"
-    dunedin = "Dunedin", "112 Anzac Avenue, Dunedin"
-    invercargill = "Invercargill", "26 North Road, Invercargill"
-    auckland_trucks = "Turners Auckland Trucks", ""
+    whangarei = "Whangarei"
+    westgate = "Westgate"
+    northShore = "North Shore"
+    otahuhu = "Otahuhu"
+    penrose = "Penrose"
+    botany = "Botany"
+    manukau = "Manukau"
+    te_rapa_road = "Te Rapa Road"
+    avalon_drive = "Avalon Drive"
+    tauranga = "Tauranga"
+    newPlymouth = "New Plymouth"
+    napier = "Napier"
+    rotorua = "Rotorua"
+    palmerstonNorth = "Palmerston North"
+    porirua = "Porirua"
+    nelson = "Nelson"
+    christchurch = "Christchurch"
+    timaru = "Timaru"
+    dunedin = "Dunedin"
+    invercargill = "Invercargill"
+    auckland_trucks = "Turners Auckland Trucks"
+
+# If you need to store the address as well, use a separate dictionary or class
+LOCATION_ADDRESSES = {
+    LocationEnum.whangarei: "Corner Walton Street and Maunu Road",
+    LocationEnum.westgate: "Corner of Fred Taylor Drive & Kakano Road",
+    LocationEnum.northShore: "201 Archers Road, Wairau Valley, Auckland",
+    LocationEnum.otahuhu: "1120 Great South Road, Otahuhu, Auckland",
+    LocationEnum.penrose: "1000 - 1008 Great South Road, Penrose",
+    LocationEnum.botany: "183 Harris Road, East Tamaki",
+    LocationEnum.manukau: "590 Great South Road, Manukau, Auckland",
+    LocationEnum.te_rapa_road: "850 Te Rapa Road, Hamilton",
+    LocationEnum.avalon_drive: "112 Avalon Drive, Hamilton",
+    LocationEnum.tauranga: "26 Hull Road, Mt Maunganui, Tauranga",
+    LocationEnum.newPlymouth: "690 Devon Road, New Plymouth",
+    LocationEnum.napier: "31 Pandora Road, Napier",
+    LocationEnum.rotorua: "44 Fairy Springs Road, Fairy Springs, Rotorua",
+    LocationEnum.palmerstonNorth: "201 John F Kennedy Drive, Palmerston North",
+    LocationEnum.porirua: "9 John Seddon Drive, Elsdon, Porirua, Wellington",
+    LocationEnum.nelson: "85 St Vincent Street",
+    LocationEnum.christchurch: "1 Detroit Place, Christchurch",
+    LocationEnum.timaru: "1 Meadows Road, Washdyke, Timaru",
+    LocationEnum.dunedin: "112 Anzac Avenue, Dunedin",
+    LocationEnum.invercargill: "26 North Road, Invercargill",
+    LocationEnum.auckland_trucks: "",
+}
 
 
 class VehicleTypeEnum(str, Enum):
