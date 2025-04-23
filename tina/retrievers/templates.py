@@ -1,5 +1,5 @@
 query_extraction_prefix = """
-Your goal is to structure the user's query to match the request schema provided below.
+Your goal is to structure the user's query to match the schema provided below.
 
 The query string should contain only text that is expected to match the contents of documents. Any conditions in the filter should not be mentioned in the query as well.
 
@@ -21,7 +21,7 @@ Make sure that filters only use format `YYYY-MM-DD` when handling date data type
 Make sure that filters take into account the descriptions of attributes and only make comparisons that are feasible given the type of data being stored.
 Make sure that filters are only used as needed. If there are no filters that should be applied return "NO_FILTER" for the filter value.
 
-Date source:
+schema:
 {{field_metadata}}
 """
 
@@ -38,8 +38,6 @@ query_extraction_examples = [
     {
         "conversation": """
         [
-            "system: You are a helpful but sassy sales assistant, working for Turners Automotive Group,",
-            "ai: Hi! im Tina, a virtual sales assistant. How can i help you today?",
             "human: im looking for a fun car",
             "ai: Awesome, you have come to the right place, could you tell me more about the kind od car your looking for?",
             "human: a toyota",
@@ -60,8 +58,25 @@ query_extraction_examples = [
     {
         "conversation": """
         [
-            "system: You are a helpful but sassy sales assistant, working for Turners Automotive Group,",
-            "ai: Hi! im Tina, a virtual sales assistant. How can i help you today?",
+            "human: i got a new job, and now have a long commute, whats a good car for me",
+            "ai: Congrats on the new job, can you tell me more about this commute? are you looking for good fuel efficiency? and a comfortable ride?",
+            "human: yes, id like an SUV that has both",
+            "ai: the relevant Turners locations to search are: Manukau, Botany"
+        ]""",
+            "result": """
+        {
+            "query": "goof fuel efficiency, comfortable ride", 
+            "filter": {
+                "$and": [
+                    {"location": {"$in": ["Manukau", "Botany"]}},
+                    {"vehicle_type": {"$eq": "SUV"}},
+                ]
+            }
+        }"""
+    },
+    {
+        "conversation": """
+        [
             "human: im i want a new car",
             "ai: Awesome, you have come to the right place, could you tell me more about the kind od car your looking for?",
             "human: somehting recent with good fuel economy",

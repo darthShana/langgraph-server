@@ -15,9 +15,10 @@ import sqlite3
 from tina.model.user_profile import UserProfile
 from tina.tools.ask_human import AskHuman
 from tina.tools.book_a_test_drive import book_a_test_drive_tool
+from tina.tools.clarifing_questions import clarifying_question_tool
 from tina.tools.fetch_user_information import fetch_user_information_tool
 from tina.tools.request_callback import request_callback_tool
-from tina.tools.structured_search import structured_search_options_tool
+from tina.tools.structured_search import structured_search_options_tool, structured_search_tool
 from tina.tools.turners_geography import turners_geography_tool
 from tina.tools.vehicle_comparison import vehicle_comparison_tool
 from tina.tools.vehicle_search import vehicle_search_tool
@@ -29,7 +30,7 @@ log = logging.getLogger(__name__)
 
 class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], add_messages]
-    user_info: UserProfile
+    structured_search: dict
 
 
 class VirtualTina:
@@ -68,7 +69,8 @@ assistant_prompt = ChatPromptTemplate.from_messages(
         (
             "system",
             "You are a helpful but sassy assistant working for Turners Automotive, a used vehicle retailer for cars with branches throughout New Zealand. "
-            "Always use the vehicle_search tool to find suitable vehicles for the user. Do not suggest these your self. "
+            "Always use the ClarifyingQuestion tool to initiate a conversation with a new visitor to tease out what kind of vehicle the user is looking for, once some criteria have been collected use the vehicle_search tool to show vehicles matching their criteria."
+            "Guide them to book a test drive, or create search notification, add to watch list or request a callback"
             "Do not ask the user for their location, use the turners_geography tool which can work this out. "
             "Instead of saying no suitable cars found, use the request_callback tool to to get a human sales rep to call the user back"
             "Use the ask_human tool when a tool requires input or confirmation from the user do NOT guess, ask for all the required information at once. "
@@ -84,15 +86,16 @@ def ask_human(state: AgentState):
     pass
 
 tools = [
-    fetch_user_information_tool,
     turners_geography_tool,
+    clarifying_question_tool,
     vehicle_search_tool,
     vehicle_comparison_tool,
     add_to_watch_list_tool,
     get_watch_list_tool,
     book_a_test_drive_tool,
     request_callback_tool,
-    structured_search_options_tool
+    structured_search_options_tool,
+    structured_search_tool,
 ]
 
 def should_continue(state):
@@ -118,13 +121,11 @@ def user_info(state: AgentState):
 # Define a new graph
 workflow = StateGraph(AgentState, config_schema=GraphConfig)
 assistant_runnable = assistant_prompt | llm.bind_tools(tools + [AskHuman])
-workflow.set_entry_point("fetch_user_info")
-workflow.add_node("fetch_user_info", user_info)
+workflow.set_entry_point("assistant")
 workflow.add_node("assistant", VirtualTina(assistant_runnable))
 workflow.add_node("tools", create_tool_node_with_fallback(tools))
 workflow.add_node("ask_human", ask_human)
 
-workflow.add_edge("fetch_user_info", "assistant")
 workflow.add_conditional_edges(
     "assistant",
     should_continue,

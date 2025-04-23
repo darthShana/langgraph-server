@@ -110,7 +110,7 @@ turners_geography_tool = StructuredTool.from_function(
     name="turners_geography",
     description="""
         Used to get turners branches near a user which can be used in subsequent tools to find vehicles.
-        do not ask the user for the distance to use just try 10, 15, 20km to return more branches if needed.
+        do not ask the user for the distance to use just try 15, 20, 25km to return more branches if needed.
         """,
     args_schema=TurnersGeographyInput,
 )
@@ -120,6 +120,6 @@ if __name__ == "__main__":
     nearby_locations = turners_geography({"configurable": {
         "latitude": -36.907474353046766,
         "longitude": 174.79087999884032
-    }}, [], 10)
+    }}, 20)
 
     print(nearby_locations)
