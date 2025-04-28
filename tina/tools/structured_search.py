@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Annotated
+from typing import Annotated, Optional
 
 from langchain.chat_models import init_chat_model
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
@@ -17,55 +17,59 @@ db = TinyDB('db/db.json')
 llm = init_chat_model("gpt-4o", model_provider="openai")
 
 
-class StructuredSearchOptionsInput(BaseModel):
-    state: Annotated[dict, InjectedState] = Field(description="current state")
+class StructuredSearchInput(BaseModel):
+    selected_vehicle_type: Optional[str] = Field("selected_vehicle_type")
+    selected_make: Optional[str] = Field("selected_make")
+    selected_model: Optional[str] = Field("selected_model")
+    selected_year_from: Optional[str] = Field("selected_year_from")
+    selected_year_to: Optional[str] = Field("selected_year_to")
+    selected_kms_from: Optional[str] = Field("selected_kms_from")
+    selected_kms_to: Optional[str] = Field("selected_kms_to")
 
-
-def structured_search_options(state: Annotated[dict, InjectedState]):
-    selected_make = None
-    selected_vehicle_type = None
-    if 'structured_search' in state:
-        log.info(f'structured_search: {state["structured_search"]}')
-        selected_vehicle_type = state['structured_search'].get('selected_vehicle_type', None)
-        selected_make = state['structured_search'].get('selected_make', None)
-    log.info(f'Selected vehicle type: {selected_vehicle_type}, Selected make: {selected_make}')
+def structured_search_options():
 
     Listing = Query()
+    listings = db.search((Listing.metadata.exists()))
 
-    if selected_make and selected_vehicle_type:
-        listings = db.search((Listing.metadata.vehicle_type == selected_vehicle_type) & (Listing.metadata.make == selected_make))
-    elif selected_make:
-        listings = db.search((Listing.metadata.make == selected_make))
-    else:
-        listings = db.search((Listing.metadata.exists()))
+    vehicle_type_to_makes = {}
+    make_to_models = {}
+    vehicle_types = set()
+    makes = set()
+    models = set()
 
-    models = map(lambda obj: obj['metadata']['model'], listings)
-    models = list(set(filter(None, models)))
-    log.info("models")
-    log.info(models)
+    for listing in listings:
+        vehicle_type = listing['metadata']['vehicle_type']
+        make = listing['metadata']['make']
+        model = listing['metadata']['model']
 
-    if selected_vehicle_type:
-        listings = db.search((Listing.metadata.vehicle_type == selected_vehicle_type))
-    else:
-        listings = db.search((Listing.metadata.exists()))
+        vehicle_types.add(vehicle_type)
+        makes.add(make)
+        models.add(model)
 
-    makes = map(lambda obj: obj['metadata']['make'], listings)
-    makes = list(set(filter(None, makes)))
-    log.info("makes")
-    log.info(makes)
+        if vehicle_type not in vehicle_type_to_makes:
+            vehicle_type_to_makes[vehicle_type] = set()
+        vehicle_type_to_makes[vehicle_type].add(make)
 
-    vehicle_types = map(lambda obj: obj['metadata']['vehicle_type'], listings)
-    vehicle_types = list(set(filter(None, vehicle_types)))
-    log.info("vehicle_types")
-    log.info(vehicle_types)
+        # Update make -> models map
+        if make not in make_to_models:
+            make_to_models[make] = set()
+        make_to_models[make].add(model)
+
+    for vehicle_type in vehicle_type_to_makes:
+        vehicle_type_to_makes[vehicle_type] = list(vehicle_type_to_makes[vehicle_type])
+
+    for make in make_to_models:
+        make_to_models[make] = list(make_to_models[make])
 
     years = ["Any Year", "1990", "1996", "1998", "2000", "2002", "2004", "2006", "2008", "2010", "2012", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022"]
     kms = ["Any Kms", "30,000 kms", "60,000 kms", "100,000 kms", "150,000 kms", "200,000 kms"]
 
     return json.dumps({
-        "models": models,
-        "makes": makes,
-        "vehicle_types": vehicle_types,
+        "vehicle_type_to_makes": vehicle_type_to_makes,
+        "make_to_models": make_to_models,
+        'vehicle_types': list(vehicle_types),
+        'makes': list(makes),
+        'models': list(models),
         "years": years,
         "kms": kms
     })
@@ -74,42 +78,46 @@ def structured_search_options(state: Annotated[dict, InjectedState]):
 from tinydb import where
 
 
-def structured_search(state: Annotated[dict, InjectedState]):
+def structured_search(selected_vehicle_type: Optional[str], selected_make: Optional[str], selected_model: Optional[str], selected_year_from: Optional[str], selected_year_to: Optional[str], selected_kms_from: Optional[str], selected_kms_to: Optional[str]):
     # Start with a condition that should match everything
     conditions = [where('metadata').exists()]
 
-    if 'structured_search' in state:
-        log.info(f'structured_search: {state["structured_search"]}')
-    else:
-        log.info('no structured search in state')
+    log.info('structured search')
+    log.info(selected_vehicle_type)
+    log.info(selected_make)
+    log.info(selected_model)
+    log.info(selected_year_from)
+    log.info(selected_year_to)
+    log.info(selected_kms_from)
+    log.info(selected_kms_to)
 
-    if 'selected_vehicle_type' in state['structured_search'] and state['structured_search']['selected_vehicle_type']:
-        log.info(f'selected_vehicle_type: {state["structured_search"]["selected_vehicle_type"]}')
-        conditions.append(where('metadata')['vehicle_type'] == state['structured_search']['selected_vehicle_type'])
+    if selected_vehicle_type:
+        log.info(f'selected_vehicle_type: {selected_vehicle_type}')
+        conditions.append(where('metadata')['vehicle_type'] == selected_vehicle_type)
 
-    if 'selected_make' in state['structured_search'] and state['structured_search']['selected_make']:
-        log.info(f'selected_make: {state["structured_search"]["selected_make"]}')
-        conditions.append(where('metadata')['make'] == state['structured_search']['selected_make'])
+    if selected_make:
+        log.info(f'selected_make: {selected_make}')
+        conditions.append(where('metadata')['make'] == selected_make)
 
-    if 'selected_model' in state['structured_search'] and state['structured_search']['selected_model']:
-        log.info(f'selected_model: {state["structured_search"]["selected_model"]}')
-        conditions.append(where('metadata')['model'] == state['structured_search']['selected_model'])
+    if selected_model:
+        log.info(f'selected_model: {selected_model}')
+        conditions.append(where('metadata')['model'] == selected_model)
 
-    if 'selected_year_from' in state['structured_search'] and state['structured_search']['selected_year_from']:
-        log.info(f'selected_year_from: {state["structured_search"]["selected_year_from"]}')
-        conditions.append(where('metadata')['year'] >= state['structured_search']['selected_year_from'])
+    if selected_year_from and selected_year_from != 'Any Year':
+        log.info(f'selected_year_from: {selected_year_from}')
+        conditions.append(where('metadata')['year'] >= int(selected_year_from))
 
-    if 'selected_year_to' in state['structured_search'] and state['structured_search']['selected_year_to']:
-        log.info(f'selected_year_to: {state["structured_search"]["selected_year_to"]}')
-        conditions.append(where('metadata')['year'] <= state['structured_search']['selected_year_to'])
+    if selected_year_to and selected_year_to != 'Any Year':
+        log.info(f'selected_year_to: {selected_year_to}')
+        conditions.append(where('metadata')['year'] <= int(selected_year_to))
 
-    if 'selected_kms_from' in state['structured_search'] and state['structured_search']['selected_kms_from']:
-        log.info(f'selected_kms_from: {state["structured_search"]["selected_kms_from"]}')
-        conditions.append(where('metadata')['kms'] >= state['structured_search']['selected_kms_from'])
+    if selected_kms_from and selected_year_from != 'Any Kms':
+        log.info(f'selected_kms_from: {selected_kms_from}')
+        conditions.append(where('metadata')['kms'] >= int(selected_kms_from))
 
-    if 'selected_kms_to' in state['structured_search'] and state['structured_search']['selected_kms_to']:
-        log.info(f'selected_kms_to: {state["structured_search"]["selected_kms_to"]}')
-        conditions.append(where('metadata')['kms'] <= state['structured_search']['selected_kms_to'])
+    if selected_kms_to and selected_kms_to != 'Any Kms':
+        log.info(f'selected_kms_to: {selected_kms_to}')
+        conditions.append(where('metadata')['kms'] <= int(selected_kms_to))
 
     # Combine all conditions with AND
     query = conditions[0]
@@ -120,13 +128,11 @@ def structured_search(state: Annotated[dict, InjectedState]):
 
     all_results = db.search(query)
     result = all_results[:7]
-    log.info("result")
-    log.info(result)
 
     prompt = PromptTemplate(
         template="""summarize the following search results so they can be displayed
         Vehicle Descriptions:
-        {vehicle_descriptions} 
+        {vehicle_descriptions}
         """,
         input_variables=["vehicle_descriptions"],
     )
@@ -143,7 +149,6 @@ structured_search_options_tool = StructuredTool.from_function(
     description="""
         Useful for finding options available for structured search. Always rerun this tool to get the options available, as they may change, DO NOT cache the results
         """,
-    args_schema=StructuredSearchOptionsInput,
 )
 
 structured_search_tool = StructuredTool.from_function(
@@ -152,14 +157,13 @@ structured_search_tool = StructuredTool.from_function(
     description="""
     Useful for doing structured search. No arguments are required for this tool. as it able read them internally
     """,
-    args_schema=StructuredSearchOptionsInput,
+    args_schema=StructuredSearchInput,
 )
 
 if __name__ == '__main__':
-    structured_search({
-        'structured_search': {
-            # 'selected_vehicle_type': 'SUV',
-            'selected_make': 'Ford',
-            'selected_model': 'Ranger Wildtrak X'
-        }
-    })
+    print(structured_search_options())
+    structured_search(StructuredSearchInput(
+        selected_vehicle_type = 'SUV',
+        selected_make = 'Ford',
+        selected_model = 'Ranger Wildtrak X'
+    ))

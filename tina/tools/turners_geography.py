@@ -69,7 +69,7 @@ class TurnersGeographyInput(BaseModel):
     distance: int = Field(description="max allowed distance to search for turners branches")
 
 
-def turners_geography(config: RunnableConfig, distance: int) -> list[str] | None:
+def turners_geography(config: RunnableConfig, distance: int = 20) -> list[str] | None:
     log.info("in here turners Geography")
     lat = config.get("configurable", {}).get("latitude", -36.90750866841916)
     lng = config.get("configurable", {}).get("longitude", 174.79082099009818)
