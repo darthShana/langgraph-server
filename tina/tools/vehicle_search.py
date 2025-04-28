@@ -36,7 +36,7 @@ class VehicleSearchInput(BaseModel):
     turners_locations: List[str] = Field(description="a list of turners branches where the human is looking for a vehicle.")
 
 
-def vehicle_search(chat_history: List[str], turners_locations: List[str]) -> dict:
+def vehicle_search(chat_history: List[str], turners_locations: List[str]) -> VehicleSearchResults:
     if turners_locations is None:
         turners_locations = []
     if len(turners_locations) > 0:
@@ -57,19 +57,18 @@ def vehicle_search(chat_history: List[str], turners_locations: List[str]) -> dic
     q = Query()
     load_candidates = [db.search(q.source == src)[0] for src in sources]
 
-    parser = JsonOutputParser(pydantic_object=VehicleSearchResults)
     prompt = PromptTemplate(
         template=custom_stuff_template,
         input_variables=["conversation", "vehicle_descriptions"],
-        partial_variables={"format_instructions": parser.get_format_instructions()}
     )
-    chain = prompt | chat
-    res = chain.invoke({
+    structured_llm = chat.with_structured_output(VehicleSearchResults)
+    chain = prompt | structured_llm
+    response: dict | VehicleSearchResults = chain.invoke({
         "conversation": chat_history,
         "vehicle_descriptions": load_candidates
     })
-    log.info(res.content)
-    return parse_json_markdown(res.content)
+    log.info(response)
+    return response
 
 
 vehicle_search_tool = StructuredTool.from_function(

@@ -1,7 +1,4 @@
 custom_stuff_template = """
-Please provide a JSON response in the following format to the question provided, mark the json as ```json:
-{format_instructions}
-
 Given the provided conversation between an AI and a human looking for a suitable vehicle, 
 as well as a list vehicle descriptions. Filter the list and return matching vehicle descriptions
 return a summary of each listing, always include the source of each listing
