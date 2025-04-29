@@ -36,7 +36,7 @@ class VehicleSearchInput(BaseModel):
     turners_locations: List[str] = Field(description="a list of turners branches where the human is looking for a vehicle.")
 
 
-def vehicle_search(chat_history: List[str], turners_locations: List[str]) -> VehicleSearchResults:
+def vehicle_search(chat_history: List[str], turners_locations: List[str]) -> str:
     if turners_locations is None:
         turners_locations = []
     if len(turners_locations) > 0:
@@ -68,7 +68,7 @@ def vehicle_search(chat_history: List[str], turners_locations: List[str]) -> Veh
         "vehicle_descriptions": load_candidates
     })
     log.info(response)
-    return response
+    return response.model_dump()
 
 
 vehicle_search_tool = StructuredTool.from_function(
