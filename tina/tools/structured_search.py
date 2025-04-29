@@ -147,7 +147,7 @@ structured_search_options_tool = StructuredTool.from_function(
     func=structured_search_options,
     name="structured_search_options",
     description="""
-        Useful for finding options available for structured search. Always rerun this tool to get the options available, as they may change, DO NOT cache the results
+        Useful for finding options available for structured search. Only use this tool when the user asks to do a structured search.
         """,
 )
 
