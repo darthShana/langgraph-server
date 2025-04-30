@@ -111,7 +111,7 @@ def structured_search(selected_vehicle_type: Optional[str], selected_make: Optio
         log.info(f'selected_year_to: {selected_year_to}')
         conditions.append(where('metadata')['year'] <= int(selected_year_to))
 
-    if selected_kms_from and selected_year_from != 'Any Kms':
+    if selected_kms_from and selected_kms_from != 'Any Kms':
         log.info(f'selected_kms_from: {selected_kms_from}')
         conditions.append(where('metadata')['kms'] >= int(selected_kms_from))
 

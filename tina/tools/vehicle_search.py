@@ -44,6 +44,9 @@ def vehicle_search(chat_history: List[str], turners_locations: List[str]) -> str
 
     query = query_extractor.extract_query(chat_history)
     log.info(f"query: {query}")
+    if query is None or len(query) == 0:
+        query = "any car"
+
     vector = vo.embed([query['query']], model="voyage-large-2", input_type="document").embeddings[0]
     res = index.query(
         vector=vector,
