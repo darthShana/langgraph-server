@@ -66,10 +66,9 @@ def get_location_details(place_id: str) -> tuple:
 
 class TurnersGeographyInput(BaseModel):
     config: RunnableConfig = Field(description="runnable config")
-    distance: int = Field(description="max allowed distance to search for turners branches")
 
 
-def turners_geography(config: RunnableConfig, distance: int = 20) -> list[str] | None:
+def turners_geography(config: RunnableConfig) -> list[str] | None:
     log.info("in here turners Geography")
     lat = config.get("configurable", {}).get("latitude", -36.90750866841916)
     lng = config.get("configurable", {}).get("longitude", 174.79082099009818)
@@ -99,7 +98,7 @@ def turners_geography(config: RunnableConfig, distance: int = 20) -> list[str] |
         location.name for location in turners_locations
         if location.lat is not None
         and location.lng is not None
-        and calculate_distance(lat, lng, location.lat, location.lng) <= distance
+        and calculate_distance(lat, lng, location.lat, location.lng) <= 20
     ]
 
     return nearby_locations
@@ -110,7 +109,6 @@ turners_geography_tool = StructuredTool.from_function(
     name="turners_geography",
     description="""
         Used to get turners branches near a user which can be used in subsequent tools to find vehicles.
-        do not ask the user for the distance to use just try 15, 20, 25km to return more branches if needed.
         """,
     args_schema=TurnersGeographyInput,
 )
@@ -120,6 +118,6 @@ if __name__ == "__main__":
     nearby_locations = turners_geography({"configurable": {
         "latitude": -36.907474353046766,
         "longitude": 174.79087999884032
-    }}, 20)
+    }})
 
     print(nearby_locations)
