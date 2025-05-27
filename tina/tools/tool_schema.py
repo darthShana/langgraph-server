@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 class VehicleSearchResult(BaseModel):
     source: str = Field(description="the source URL of the listing")
     image: str = Field(description="the image URL of the listing")
-    summary: str = Field(description="a summary of the listing details")
+    listing_details: list[str] = Field(description="some details about the listing to feature")
 
 
 class VehicleSearchResults(BaseModel):

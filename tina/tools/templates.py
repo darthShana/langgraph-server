@@ -1,7 +1,7 @@
 custom_stuff_template = """
 Given the provided conversation between an AI and a human looking for a suitable vehicle, 
 as well as a list vehicle descriptions. Filter the list and return matching vehicle descriptions
-return a summary of each listing, always include the source of each listing
+return a summary of each listing based on the criteria the human has mentioned, always include the source of each listing
 Conversation:
 {conversation}
 Vehicle Descriptions:
