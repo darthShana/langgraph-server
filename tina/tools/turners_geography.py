@@ -110,6 +110,7 @@ turners_geography_tool = StructuredTool.from_function(
     name="turners_geography",
     description="""
         Used to get turners branches near a user which can be used in subsequent tools to find vehicles.
+        use a value fo 20 as a default distance.
         """,
     args_schema=TurnersGeographyInput,
 )
