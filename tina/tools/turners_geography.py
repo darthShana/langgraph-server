@@ -2,7 +2,7 @@ import logging
 import os
 import requests
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 from math import radians, sin, cos, sqrt, atan2
 from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import StructuredTool
@@ -66,10 +66,10 @@ def get_location_details(place_id: str) -> tuple:
 
 class TurnersGeographyInput(BaseModel):
     config: RunnableConfig = Field(description="runnable config")
-    distance: int = Field(description="max allowed distance to search for turners branches")
+    distance: Optional[int] = Field(20, description="max allowed distance to search for turners branches")
 
 
-def turners_geography(config: RunnableConfig, distance: int = 20) -> list[str] | None:
+def turners_geography(config: RunnableConfig, distance: int) -> list[str] | None:
     log.info("in here turners Geography")
     lat = config.get("configurable", {}).get("latitude", -36.90750866841916)
     lng = config.get("configurable", {}).get("longitude", 174.79082099009818)
@@ -110,7 +110,6 @@ turners_geography_tool = StructuredTool.from_function(
     name="turners_geography",
     description="""
         Used to get turners branches near a user which can be used in subsequent tools to find vehicles.
-        do not ask the user for the distance to use just try 15, 20, 25km to return more branches if needed.
         """,
     args_schema=TurnersGeographyInput,
 )
