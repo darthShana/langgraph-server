@@ -6,13 +6,12 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.tools import StructuredTool
 from langchain_core.utils.json import parse_json_markdown
-from langchain_openai import ChatOpenAI
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from tinydb import TinyDB, Query
 from tina.retrievers.query_extractor import QueryExtractor
 from pinecone import Pinecone
 from pydantic import BaseModel, Field
 
-import voyageai
 import logging
 
 from tina.tools.templates import custom_stuff_template
@@ -22,7 +21,6 @@ from tina.tools.tool_schema import VehicleSearchResults
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 db = TinyDB('db/db.json')
-vo = voyageai.Client()
 pc = Pinecone(api_key=os.environ["PINECONE_API_KEY"], environment=os.environ["PINECONE_ENVIRONMENT_REGION"])
 index = pc.Index("turners-sample-stock")
 
@@ -47,7 +45,8 @@ def vehicle_search(chat_history: List[str], turners_locations: List[str]) -> str
     if query is None or len(query) == 0:
         query = "any car"
 
-    vector = vo.embed([query['query']], model="voyage-large-2", input_type="document").embeddings[0]
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-large", dimensions=2048)
+    vector = embeddings.embed_query([query['query']]).embeddings[0]
     res = index.query(
         vector=vector,
         filter=query['filter'],
