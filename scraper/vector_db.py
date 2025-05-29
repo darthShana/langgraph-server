@@ -6,6 +6,7 @@ import uuid
 import copy
 
 from langchain_core.documents import Document
+from langchain_openai import OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from langchain_voyageai import VoyageAIEmbeddings
 
@@ -20,7 +21,7 @@ class VectorDB:
     vo = voyageai.Client()
     pinecone = Pinecone(api_key=os.environ["PINECONE_API_KEY"], environment=os.environ["PINECONE_ENVIRONMENT_REGION"])
     index = pinecone.Index("turners-sample-stock")
-    embeddings = VoyageAIEmbeddings(voyage_api_key=os.environ["VOYAGE_API_KEY"], model="voyage-large-2", batch_size=50)
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-large", dimensions=2048)
 
     def __init__(self):
         pass

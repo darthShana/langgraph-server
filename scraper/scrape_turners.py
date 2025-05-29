@@ -40,7 +40,7 @@ class TurnersScraper:
                 d.page_content = d.page_content.split('End: Main Content Area')[0]
 
     def run_crawler(self):
-        max_count = 40
+        max_count = 80
 
         vgm_urls = [
             f'https://www.turners.co.nz/Cars/Used-Cars-for-Sale/?sortorder=7&pagesize={max_count}&pageno=1&issearchsimilar=true&types=convertible',
