@@ -27,7 +27,7 @@ index = pc.Index("turners-sample-stock")
 
 query_extractor = QueryExtractor()
 chat = init_chat_model("gpt-4o", model_provider="openai")
-
+embeddings = OpenAIEmbeddings(model="text-embedding-3-large", dimensions=2048)
 
 class VehicleSearchInput(BaseModel):
     chat_history: List[str] = Field(description="the chat history between an ai and human looking for a suitable vehicle")
@@ -45,7 +45,7 @@ def vehicle_search(chat_history: List[str], turners_locations: List[str]) -> str
     if query is None or len(query) == 0:
         query = "any car"
 
-    embeddings = OpenAIEmbeddings(model="text-embedding-3-large", dimensions=2048)
+
     vector = embeddings.embed_query([query['query']]).embeddings[0]
     res = index.query(
         vector=vector,
