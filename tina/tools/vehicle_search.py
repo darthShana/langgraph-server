@@ -45,7 +45,7 @@ def vehicle_search(chat_history: List[str], turners_locations: List[str]) -> str
     if query is None or len(query) == 0:
         query = {'query': "any car"}
 
-    vector = embeddings.embed_query([query['query']])
+    vector = embeddings.embed_query(query['query'])
     res = index.query(
         vector=vector,
         filter=query['filter'],
