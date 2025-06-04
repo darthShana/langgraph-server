@@ -75,7 +75,7 @@ def structured_search_options():
         'models': list(models),
         "years": years,
         "kms": kms,
-        "prices": prices,
+        "prices": prices
     })
 
 
